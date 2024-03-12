@@ -1,5 +1,7 @@
 # Watchfile Remote [Rust Edition]
 
+![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/richbl/rust-watchfile-remote?include_prereleases)
+
 **Watchfile Remote [Rust Edition]** is a simply client-server pattern that configures both a sender (via the `watchfile-remote-sender` executable) and a receiver (`watchfile-remote-receiver`) to monitor a single file passed between them for change (called "heartbeat detection"). Both of these executables are started once on each machine, and then run indefinitely in the background.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/richbl/watchfile-remote/assets/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357"><source media="(prefers-color-scheme: light)" srcset="https://github.com/richbl/watchfile-remote/assets/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357"><img src="[https://user-images.githubusercontent.com/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357](https://github.com/richbl/watchfile-remote/assets/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357)"></picture>
