@@ -1,0 +1,17 @@
+[app]
+  watchfile_name = "the-watchfile"
+  watchfile_dir = "/home/user/rust-watchfile-remote"
+  sleep_interval_up = 600
+  sleep_interval_down = 420
+
+[email]
+  from_email_name = "Home Internet Service Watcher"
+  from_email_addr = "username@yourdomain.com"
+  reply_to_email_name = "Home Internet Service Watcher"
+  reply_to_email_addr = "username@yourdomain.com"
+  to_email_name = "End User Name"
+  to_email_addr = "somebody@gmail.com"
+
+  smtp_host = "smtp.gmail.com"
+  account_username = "username@yourdomain.com"
+  account_password = "google_app_password_here"

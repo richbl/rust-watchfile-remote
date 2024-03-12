@@ -1,0 +1,11 @@
+[app]
+  watchfile_name = "the-watchfile"
+  watchfile_dir = "/home/user/rust-watchfile-remote"
+  sleep_interval = 300
+
+[receiver]
+  username = "username_here"
+  server = "yourdomain.com"
+  password = "use_ssh_keys"
+  ssh_key = "/home/user/.ssh/id_ed25519"
+  dir = "/home/user/watchfile-remote"

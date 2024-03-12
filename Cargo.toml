@@ -1,0 +1,35 @@
+[package]
+  name = "rust-watchfile-remote"
+  version = "0.1.0"
+  edition = "2021"
+
+[[bin]]
+  name = "watchfile-remote-sender"
+  path = "src/bin/watchfile-remote-sender.rs"
+
+[[bin]]
+  name = "watchfile-remote-receiver"
+  path = "src/bin/watchfile-remote-receiver.rs"
+
+[lib]
+  name = "watchfilelib"
+  path = "src/watchfile-lib.rs"
+
+[dependencies]
+  chrono = "0.4.34"
+  lettre = { version = "0.11.4" }
+  serde = { version = "1.0.197", features = ["derive"] }
+  serde_derive = "1.0.197"
+  toml = "0.8.10"
+
+  # IMPORTANT!
+  #
+  # the target machine (Ubuntu 18.04) for watchfile-remote-receiver uses an older glibc 
+  # library (2.27), so we need to statically link glibc functionality into the binary using
+  # musl libc which requires the following steps on the build machine:
+  #
+  # 1. sudo apt-get install musl-tools
+  # 2. rustup target add x86_64-unknown-linux-musl
+  # 3. cargo build --release --bin watchfile-remote-receiver --target x86_64-unknown-linux-musl
+  #
+  ssh2 = { version = "0.9.4", features = ["vendored-openssl"] }
