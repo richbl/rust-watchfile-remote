@@ -1,11 +1,13 @@
 [app]
-  watchfile_name = "the-watchfile"
-  watchfile_dir = "/home/user/rust-watchfile-remote"
-  sleep_interval = 300
+  watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
+  watchfile_dir = "/home/user/rust-watchfile-remote" # the full path to this executable
+  resend_attempts = 4                                # max attempts at SFTP resend before exiting
+  resend_interval = 15                               # interval (in secs) between resend attempts
+  sleep_interval = 300                               # interval (in secs) to send the watchfile to the receiver
 
 [receiver]
-  username = "username_here"
-  server = "yourdomain.com"
-  password = "use_ssh_keys"
-  ssh_key = "/home/user/.ssh/id_ed25519"
-  dir = "/home/user/watchfile-remote"
+  username = "username_here"             # remote server account username
+  server = "yourdomain.com"              # remote server domain name
+  password = "use_ssh_keys"              # password OR keep as default to "use_ssh_keys"
+  ssh_key = "/home/user/.ssh/id_ed25519" # full path to ssh certificate
+  dir = "/home/user/watchfile-remote"    # full path to receiver executable on server

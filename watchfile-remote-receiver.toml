@@ -1,17 +1,17 @@
 [app]
-  watchfile_name = "the-watchfile"
-  watchfile_dir = "/home/user/rust-watchfile-remote"
-  sleep_interval_up = 600
-  sleep_interval_down = 420
+  watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
+  watchfile_dir = "/home/user/rust-watchfile-remote" # the full path to this executable
+  sleep_interval_up = 600                            # interval (in secs) to check for the-watchfile updates when internet service is up
+  sleep_interval_down = 420                          # interval (in secs) to check for the-watchfile updates when internet service is down
 
 [email]
-  from_email_name = "Home Internet Service Watcher"
-  from_email_addr = "username@yourdomain.com"
-  reply_to_email_name = "Home Internet Service Watcher"
-  reply_to_email_addr = "username@yourdomain.com"
-  to_email_name = "End User Name"
-  to_email_addr = "somebody@gmail.com"
+  from_email_name = "Home Internet Service Watcher"     # sender (FROM:) text field
+  from_email_addr = "username@yourdomain.com"           # sender (FROM:) address
+  reply_to_email_name = "Home Internet Service Watcher" # REPLY: text field
+  reply_to_email_addr = "username@yourdomain.com"       # REPLY: address
+  to_email_name = "End User Name"                       # recipient (TO:) text field
+  to_email_addr = "somebody@gmail.com"                  # recipient (TO:) address
 
-  smtp_host = "smtp.gmail.com"
-  account_username = "username@yourdomain.com"
-  account_password = "google_app_password_here"
+  smtp_host = "smtp.gmail.com"                  # SMTP server address
+  account_username = "username@yourdomain.com"  # email server account address
+  account_password = "google_app_password_here" # email server account password
