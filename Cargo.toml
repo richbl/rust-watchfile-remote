@@ -24,12 +24,26 @@
 
   # IMPORTANT!
   #
-  # the target machine (Ubuntu 18.04) for watchfile-remote-receiver uses an older glibc 
+  # The target machine (Ubuntu 18.04) for watchfile-remote-receiver uses an older glibc 
   # library (2.27), so we need to statically link glibc functionality into the binary using
   # musl libc which requires the following steps on the build machine:
   #
-  # 1. sudo apt-get install musl-tools
-  # 2. rustup target add x86_64-unknown-linux-musl
-  # 3. cargo build --release --bin watchfile-remote-receiver --target x86_64-unknown-linux-musl
+  # 1. sudo apt-get install musl-tools (one time installation)
+  # 2. rustup target add x86_64-unknown-linux-musl (one time addition)
+  #
+  # Then for each compile of watchfile-remote-receiver, run the following:
+  #
+  #   cargo build --release --bin watchfile-remote-receiver --target x86_64-unknown-linux-musl
   #
   ssh2 = { version = "0.9.4", features = ["vendored-openssl"] }
+
+  # 
+  # On the other hand, if the target machine does NOT require glibc to be statically linked,
+  # it can be dynamically linked (default) using the following ssh2 library syntax:
+  #
+  # ssh2 = "0.9.4"
+  #
+  # The build process would then be the default:
+  # 
+  #   cargo build --release --bin watchfile-remote-receiver
+  #
