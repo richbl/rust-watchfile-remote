@@ -3,7 +3,7 @@
 [![Rust Report Card](https://rust-reportcard.xuri.me/badge/github.com/richbl/rust-watchfile-remote)](https://rust-reportcard.xuri.me/report/github.com/richbl/rust-watchfile-remote)
 ![GitHub Release](https://img.shields.io/github/v/release/richbl/rust-watchfile-remote?include_prereleases&sort=semver)
 
-**Watchfile Remote [Rust Edition]** is a simply client-server pattern that configures both a sender (via the `watchfile-remote-sender` executable) and a receiver (`watchfile-remote-receiver`) to monitor a single file passed between them for change (called "heartbeat detection"). Both of these executables are started once on each machine, and then run indefinitely in the background.
+**Watchfile Remote [Rust Edition]** is a simple pattern that configures both a sender (via the `watchfile-remote-sender` executable) and a receiver (`watchfile-remote-receiver`) to monitor a single file, passed at a given interval, between them for change (called "heartbeat monitoring"). Both of these executables are started once on each machine, and then run indefinitely, typically as a background process or service. If no change is identified after a certain period of time--that is the heartbeat is no longer detected--then an email is generated identifying loss of the heartbeat. Conversely, if the heartbeat is again detected, a follow-on email is generated indicating the resumption of the heartbeat.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/richbl/watchfile-remote/assets/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357"><source media="(prefers-color-scheme: light)" srcset="https://github.com/richbl/watchfile-remote/assets/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357"><img src="[https://user-images.githubusercontent.com/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357](https://github.com/richbl/watchfile-remote/assets/10182110/2b5d9bdf-d05a-4d8f-ba28-9c72c6860357)"></picture>
 
@@ -26,7 +26,7 @@ Yep, that's right. [The first version of **Watchfile Remote** was written as a s
     - No need to rely on an external mail program such as `mailx`
     - No need to rely on an external [GNU C Library (`glibc`)](https://www.gnu.org/software/libc/): [musl `libc`](https://musl.libc.org/) used instead (*)
 
-(*) On this last point, using musl was not an intentional design decision. Instead, it was a solution to the problem of how to deploy a Rust binary to an older device that was running an old version of `glibc` (the target server happens to be running Ubuntu 18.04, while I'm running 23.10).
+> (*) On this last point, using musl was not an intentional design decision. Instead, it was a solution to the problem of how to deploy a Rust binary to an older device that was running an old version of `glibc` (the target server happens to be running Ubuntu 18.04, while I'm running 23.10).
 
 All told, while this Rust implementation makes for a solution with fewer external dependencies, writing the original `bash` script was much quicker and simpler overall (with many fewer lines of code). So, if you're running on hardware with a known Unix-like environment, [you might find the original `bash` scripts more appropriate for your own use case](https://github.com/richbl/watchfile-remote). Otherwise, enjoy playing around with this 100% Pure Rust Edition of **Watchfile Remote**.
 
@@ -57,6 +57,24 @@ a. Better still... set up a service (e.g., using `systemd` or equivalent) to run
 4. Note that nothing appears to be happening. That's good: nothing should be happening, as this executable is simply looping through a 5-minute wait, and then quietly copying a file up to the receiving server
 5. To confirm that the executable is running, on a Unix-like machine type `ps -ef | grep -i watch` and you should see the `watchfile-remote-sender` executable running
 
+#### Editing the Sender TOML File
+
+The `watchfile-remote-sender` executable is configured through the following values, editable via the `watchfile-remote-sender.toml` file:
+
+    [app]
+      watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
+      watchfile_dir = "/home/user/rust-watchfile-remote" # the full path to this executable
+      resend_attempts = 4                                # max attempts at SFTP resend before exiting
+      resend_interval = 15                               # interval (in secs) between resend attempts
+      sleep_interval = 300                               # interval (in secs) to send the watchfile to the receiver
+
+    [receiver]
+      username = "username_here"             # remote server account username
+      server = "yourdomain.com"              # remote server domain name
+      password = "use_ssh_keys"              # password OR keep as default to "use_ssh_keys"
+      ssh_key = "/home/user/.ssh/id_ed25519" # full path to ssh certificate
+      dir = "/home/user/watchfile-remote"    # full path to receiver executable on server
+
 ### The Receiver
 
 The receiver component is a remote computer not on the local LAN (typically a remote web server, or similar machine to which you have access). Its role will be to periodically watch for modifications to a "heartbeat" file (called `the-watchfile`) sent by the sender.
@@ -69,6 +87,30 @@ To configure the receiver component:
 a. Better still... set up a service (e.g., using `systemd` or equivalent) to run `watchfile-remote-receiver` as a background service
 4. Note that nothing appears to be happening. That's good: nothing should be happening, as this executable is simply looping through a 10-minute wait cycle, and then quietly checking a file called `the-watchfile` for any recent updates
 5. To confirm that the executable is running, on a Unix-like machine type `ps -ef | grep -i watch` and you should see the `watchfile-remote-receiver` executable running
+
+#### Editing the Receiver TOML File
+
+The `watchfile-remote-receiver` executable is configured through the following values, editable via the `watchfile-remote-receiver.toml` file:
+
+    [app]
+      watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
+      watchfile_dir = "/home/user/rust-watchfile-remote" # the full path to this executable
+      sleep_interval_up = 600                            # interval (in secs) to check for the-watchfile updates when internet service is up
+      sleep_interval_down = 420                          # interval (in secs) to check for the-watchfile updates when internet service is down
+
+    [email]
+      from_email_name = "Home Internet Service Watcher"     # sender (FROM:) text field
+      from_email_addr = "username@yourdomain.com"           # sender (FROM:) address
+      reply_to_email_name = "Home Internet Service Watcher" # REPLY: text field
+      reply_to_email_addr = "username@yourdomain.com"       # REPLY: address
+      to_email_name = "End User Name"                       # recipient (TO:) text field
+      to_email_addr = "somebody@gmail.com"                  # recipient (TO:) address
+
+      smtp_host = "smtp.gmail.com"                  # SMTP server address
+      account_username = "username@yourdomain.com"  # email server account address
+      account_password = "google_app_password_here" # email server account password
+
+> Note that the `account_password` field assumes the use of a Google Gmail account that requires an "app password." If this is not the case (a different SMTP service is used), this field can be ignored. [Details of how to create a Google app password is available in this link.](https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237)
 
 ## Roadmap
 
