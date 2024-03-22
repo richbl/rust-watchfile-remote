@@ -68,14 +68,16 @@ fn send_email(email_subject: &str, email_body: &str, config: &Config) {
 
   let creds = Credentials::new(config.email.account_username.to_string(), config.email.account_password.to_string());
 
+  //
   // Open a remote TLS connection to gmail (port 587)
   //
   let mailer = SmtpTransport::starttls_relay(&config.email.smtp_host).unwrap().credentials(creds).build();
 
+  //
   // Send the email already...
   //
   match mailer.send(&email) {
-    Ok(_) => println!("Email sent successfully"),
+    Ok(_) => println!("Email sent successfully: {}", email_subject),
     Err(e) => {
       eprintln!("Could not send email: {e:?}");
     }
@@ -112,7 +114,7 @@ struct Email {
   smtp_host: String,
 }
 
-/// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // The main event
 //
 fn main() {
@@ -121,6 +123,7 @@ fn main() {
   //
   let mut is_internet: bool = true;
 
+  //
   // Load configuration from TOML file
   //
   let config = match watchfilelib::load_toml_config::<Config>("watchfile-remote-receiver.toml") {
@@ -131,6 +134,7 @@ fn main() {
     }
   };
 
+  //
   // Get initial timestamp from watchfile
   //
   let watchfile_path = Path::new(&config.app.watchfile_dir).join(&config.app.watchfile_name);
@@ -156,10 +160,12 @@ fn main() {
       Duration::from_secs(config.app.sleep_interval_down)
     };
 
+    //
     // Take a nap and dream of electric sheep
     //
     thread::sleep(sleep_duration);
 
+    //
     // Get updated timestamp from file
     //
     let updated_timestamp = match get_file_date(&watchfile_path) {
@@ -169,6 +175,7 @@ fn main() {
       }
     };
 
+    //
     // If the timestamps are the same, then no updates received over this last interval... and that's not good!
     //
     if initial_timestamp == updated_timestamp {
@@ -185,6 +192,7 @@ fn main() {
       is_internet = true;
     }
 
+    //
     // Update timestamp to most recent and then go back to sleep
     //
     initial_timestamp = updated_timestamp;
