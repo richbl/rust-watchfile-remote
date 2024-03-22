@@ -33,6 +33,7 @@ fn send_file_via_sftp(
   session.set_tcp_stream(tcp);
   session.handshake()?;
 
+  //
   // Authenticate with username and password, else use existing SSH key specified on
   // the ssh_key path (note that userauth_pubkey_file() call is not dependent on ssh-agent)
   //
@@ -42,14 +43,17 @@ fn send_file_via_sftp(
     session.userauth_pubkey_file(username, None, Path::new(ssh_key), Some(""))?;
   }
 
+  //
   // Open an SFTP session
   //
   let mut sftp = session.sftp()?;
 
+  //
   // Create the remote file
   //
   let mut remote_file = sftp.create(Path::new(remote_file_path))?;
 
+  //
   // Read local file and write its content to the remote file
   //
   let mut local_file = File::open(local_file_path)?;
@@ -64,6 +68,7 @@ fn send_file_via_sftp(
   }
   remote_file.close()?;
 
+  //
   // We're done, so shutdown the SFTP session!
   //
   sftp.shutdown()?;
@@ -85,6 +90,8 @@ struct Config {
 struct App {
   watchfile_name: String,
   watchfile_dir: String,
+  resend_attempts: u16,
+  resend_interval: u64,
   sleep_interval: u64,
 }
 
@@ -132,6 +139,8 @@ fn main() {
   let watchfile_path_receiver =
     (Path::new(&config.receiver.dir).join(&config.app.watchfile_name)).display().to_string();
 
+  let mut resend_attempts = config.app.resend_attempts;
+
   //
   // WARNING! infinite loop dead ahead
   //
@@ -146,11 +155,27 @@ fn main() {
     ) {
       Ok(()) => (), // File successfully sent via SFTP
       Err(err) => {
-        eprintln!("Error sending file: {}", err);
-        return;
+        //
+        // Sometimes the receiver can be temporarily unable to accept SFTP requests,
+        // so allow for multiple attempts (set by send_attempts) before exiting
+        //
+        if resend_attempts > 0 {
+          eprintln!("Error sending file: {}", err);
+          resend_attempts -= 1;
+
+          //
+          // Sleep for a period (resend_interval); then try again
+          //
+          thread::sleep(Duration::from_secs(config.app.resend_interval));
+          continue;
+        } else {
+          eprintln!("Attempts at sending file exceeded ({}): {}", config.app.resend_attempts, err);
+          return;
+        }
       }
     }
 
+    //
     // Take a nap and dream of electric sheep
     //
     thread::sleep(Duration::from_secs(config.app.sleep_interval));
