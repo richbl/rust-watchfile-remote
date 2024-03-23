@@ -145,6 +145,9 @@ fn main() {
   // WARNING! infinite loop dead ahead
   //
   loop {
+    //
+    // Attempt to send the-watchfile to the receiver
+    //
     match send_file_via_sftp(
       &config.receiver.server,
       &config.receiver.username,
@@ -153,7 +156,12 @@ fn main() {
       &watchfile_path_local,
       &watchfile_path_receiver,
     ) {
-      Ok(()) => (), // File successfully sent via SFTP
+      Ok(()) => {
+        //
+        // File successfully sent via SFTP, so reset resend_attempts
+        //
+        resend_attempts = config.app.resend_attempts;
+      }
       Err(err) => {
         //
         // Sometimes the receiver can be temporarily unable to accept SFTP requests,
@@ -173,7 +181,7 @@ fn main() {
           return;
         }
       }
-    }
+    };
 
     //
     // Take a nap and dream of electric sheep
