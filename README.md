@@ -74,8 +74,8 @@ The `watchfile-remote-sender` executable is configured through the following val
       username = "username_here"             # remote server account username
       server = "yourdomain.com"              # remote server domain name
       password = "use_ssh_keys"              # password OR keep as default to "use_ssh_keys"
-      ssh_key = "/home/user/.ssh/id_ed25519" # full path to ssh certificate
-      dir = "/home/user/watchfile-remote"    # full path to receiver executable on server
+      ssh_key = "/home/user/.ssh/id_ed25519" # full path (on local machine) to ssh certificate
+      dir = "/home/user/watchfile-remote"    # full path to receiver executable on remote server
 
 ### The Receiver
 
