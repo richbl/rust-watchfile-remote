@@ -1,6 +1,7 @@
 use serde_derive::Deserialize;
 use ssh2::Session;
 use std::fs::File;
+use std::io::ErrorKind;
 use std::io::{self, prelude::*};
 use std::net::TcpStream;
 use std::option::Option;
@@ -40,18 +41,14 @@ fn send_file_via_sftp(
   if let Some(pwd) = password {
     session.userauth_password(username, pwd)?;
   } else {
-    session.userauth_pubkey_file(username, None, Path::new(ssh_key), Some(""))?;
+    session.userauth_pubkey_file(username, None, ssh_key.as_ref(), Some(""))?;
   }
 
   //
-  // Open an SFTP session
+  // Open an SFTP session and create remote file
   //
   let mut sftp = session.sftp()?;
-
-  //
-  // Create the remote file
-  //
-  let mut remote_file = sftp.create(Path::new(remote_file_path))?;
+  let mut remote_file = sftp.create(remote_file_path.as_ref())?;
 
   //
   // Read local file and write its content to the remote file
@@ -90,8 +87,6 @@ struct Config {
 struct App {
   watchfile_name: String,
   watchfile_dir: String,
-  resend_attempts: u16,
-  resend_interval: u64,
   sleep_interval: u64,
 }
 
@@ -114,8 +109,7 @@ fn main() {
   let config = match watchfilelib::load_toml_config::<Config>("watchfile-remote-sender.toml") {
     Ok(config) => config,
     Err(err) => {
-      eprintln!("{}", err);
-      return;
+      return eprintln!("{}", err);
     }
   };
 
@@ -128,18 +122,43 @@ fn main() {
   // To use Option A: set receiver.password = "use_ssh_keys" in the TOML file
   // To use Option B: set receiver.password to the actual authentication password
   //
-  let mut ssh_password: Option<&str> = Some(&config.receiver.password);
-  if config.receiver.password == "use_ssh_keys" {
-    ssh_password = None;
-  }
+  let ssh_password: Option<&str> = match config.receiver.password.as_str() {
+    "use_ssh_keys" => {
+      let ssh_key_path = Path::new(&config.receiver.ssh_key);
+      match ssh_key_path.try_exists() {
+        Ok(exists) => {
+          if !exists {
+            return eprintln!("The configured SSH key ({}) does not exist", config.receiver.ssh_key);
+          }
+        }
+        Err(err) => {
+          return eprintln!("Error checking SSH key existence: {}", err);
+        }
+      }
+      None
+    }
+    password => Some(password),
+  };
 
+  //
+  // Parse and confirm the existence of watchfile_name found in watchfile_dir
+  //
   let watchfile_path_local =
-    (Path::new(&config.app.watchfile_dir).join(&config.app.watchfile_name)).display().to_string();
+    Path::new(&config.app.watchfile_dir).join(&config.app.watchfile_name).display().to_string();
+
+  match Path::new(&watchfile_path_local).try_exists() {
+    Ok(exists) => {
+      if !exists {
+        return eprintln!("The local filepath {} does not exist", watchfile_path_local);
+      }
+    }
+    Err(err) => {
+      return eprintln!("Error checking local file existence: {}", err);
+    }
+  }
 
   let watchfile_path_receiver =
     (Path::new(&config.receiver.dir).join(&config.app.watchfile_name)).display().to_string();
-
-  let mut resend_attempts = config.app.resend_attempts;
 
   //
   // WARNING! infinite loop dead ahead
@@ -151,36 +170,23 @@ fn main() {
     match send_file_via_sftp(
       &config.receiver.server,
       &config.receiver.username,
-      ssh_password,
+      ssh_password.as_deref(),
       &config.receiver.ssh_key,
       &watchfile_path_local,
       &watchfile_path_receiver,
     ) {
-      Ok(()) => {
-        //
-        // File successfully sent via SFTP, so reset resend_attempts
-        //
-        resend_attempts = config.app.resend_attempts;
-      }
-      Err(err) => {
-        //
-        // Sometimes the receiver can be temporarily unable to accept SFTP requests,
-        // so allow for multiple attempts (set by send_attempts) before exiting
-        //
-        if resend_attempts > 0 {
-          eprintln!("Error sending file: {}", err);
-          resend_attempts -= 1;
+      Ok(_) => {} // File successfully sent to the receiver!
 
-          //
-          // Sleep for a period (resend_interval); then try again
-          //
-          thread::sleep(Duration::from_secs(config.app.resend_interval));
-          continue;
-        } else {
-          eprintln!("Attempts at sending file exceeded ({}): {}", config.app.resend_attempts, err);
-          return;
-        }
-      }
+      //
+      // Bad news... the SFTP transaction failed, so match on the error generated
+      //
+      Err(e) => match e.kind() {
+        ErrorKind::ConnectionRefused => eprintln!("Port 22 is closed on {}", config.receiver.server),
+        ErrorKind::ConnectionReset => eprintln!("Connection reset by {}", config.receiver.server),
+        ErrorKind::TimedOut => eprintln!("Transactions with {} timed out", config.receiver.server),
+        ErrorKind::Unsupported => eprintln!("Transactions with {} are unsupported", config.receiver.server),
+        _ => eprintln!("An undefined error occurred attempting to transact with {}: {}", config.receiver.server, e),
+      },
     };
 
     //
