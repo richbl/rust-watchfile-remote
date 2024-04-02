@@ -16,8 +16,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 //   Returns:
 //     - the modification date in Unix epoch seconds
 //
-fn get_file_date(watchfile_path: &Path) -> Option<u64> {
-  if let Ok(metadata) = fs::metadata(watchfile_path) {
+fn get_file_date(watchfile_path_local: &String) -> Option<u64> {
+  if let Ok(metadata) = fs::metadata(watchfile_path_local) {
     if let Ok(modified) = metadata.modified() {
       if let Ok(epoch_secs) = modified.duration_since(SystemTime::UNIX_EPOCH) {
         return Some(epoch_secs.as_secs());
@@ -119,31 +119,47 @@ struct Email {
 //
 fn main() {
   //
-  // Flag to identify if internet is up/down
-  //
-  let mut is_internet: bool = true;
-
-  //
   // Load configuration from TOML file
   //
   let config = match watchfilelib::load_toml_config::<Config>("watchfile-remote-receiver.toml") {
     Ok(config) => config,
     Err(err) => {
-      eprintln!("{}", err);
-      return;
+      return eprintln!("{}", err);
     }
   };
 
   //
+  // Parse and confirm the existence of watchfile_name found in watchfile_dir
+  //
+  let watchfile_path_local =
+    Path::new(&config.app.watchfile_dir).join(&config.app.watchfile_name).display().to_string();
+
+  match Path::new(&watchfile_path_local).try_exists() {
+    Ok(exists) => {
+      if !exists {
+        return eprintln!("The filepath {} does not exist", watchfile_path_local);
+      }
+    }
+    Err(err) => {
+      return eprintln!("Error checking local file existence: {}", err);
+    }
+  }
+
+  //
   // Get initial timestamp from watchfile
   //
-  let watchfile_path = Path::new(&config.app.watchfile_dir).join(&config.app.watchfile_name);
-  let mut initial_timestamp = match get_file_date(&watchfile_path) {
+  //
+  let mut initial_timestamp = match get_file_date(&watchfile_path_local) {
     Some(initial_timestamp) => initial_timestamp,
     None => {
-      return eprintln!("Error: Unable to retrieve INITIAL timestamp from watchfile.");
+      return eprintln!("Error: Unable to retrieve INITIAL timestamp from watchfile");
     }
   };
+
+  //
+  // Flag to identify if internet is up/down
+  //
+  let mut is_internet = true;
 
   //
   // WARNING! infinite loop dead ahead
@@ -168,10 +184,10 @@ fn main() {
     //
     // Get updated timestamp from file
     //
-    let updated_timestamp = match get_file_date(&watchfile_path) {
+    let updated_timestamp = match get_file_date(&watchfile_path_local) {
       Some(updated_timestamp) => updated_timestamp,
       None => {
-        return eprintln!("Error: Unable to retrieve UPDATED timestamp from watchfile.");
+        return eprintln!("Unable to retrieve timestamp from watchfile ({})", &watchfile_path_local);
       }
     };
 
