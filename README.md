@@ -66,8 +66,6 @@ The `watchfile-remote-sender` executable is configured through the following val
     [app]
       watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
       watchfile_dir = "/home/user/rust-watchfile-remote" # the full path to this executable
-      resend_attempts = 4                                # max attempts at SFTP resend before exiting
-      resend_interval = 15                               # interval (in secs) between resend attempts
       sleep_interval = 300                               # interval (in secs) to send the watchfile to the receiver
 
     [receiver]
