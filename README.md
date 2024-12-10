@@ -1,6 +1,7 @@
 # Watchfile Remote [Rust Edition]
 
 [![Rust Report Card](https://rust-reportcard.xuri.me/badge/github.com/richbl/rust-watchfile-remote)](https://rust-reportcard.xuri.me/report/github.com/richbl/rust-watchfile-remote)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/595889e53f25475da18dea64b5a60419)](https://app.codacy.com/gh/richbl/go-ble-sync-cycle/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 ![GitHub Release](https://img.shields.io/github/v/release/richbl/rust-watchfile-remote?include_prereleases&sort=semver)
 
 **Watchfile Remote [Rust Edition]** is a simple pattern that configures both a sender (via the `watchfile-remote-sender` executable) and a receiver (`watchfile-remote-receiver`) to monitor a single file, passed at a given interval, between them for change (called "heartbeat monitoring"). Both of these executables are started once on each machine, and then run indefinitely, typically as a background process or service. If no change is identified after a certain period of time--that is, the heartbeat is no longer detected--then an email is generated identifying loss of the heartbeat. Conversely, if the heartbeat is again detected, a follow-on email is generated indicating the resumption of the heartbeat.
