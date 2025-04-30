@@ -1,3 +1,6 @@
+# Watchfile Remote [Rust Edition] TOML configuration
+# 1.2.6
+
 [app]
   watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
   watchfile_dir = "/home/user/rust-watchfile-remote" # the full path to this executable
