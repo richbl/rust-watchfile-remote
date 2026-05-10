@@ -103,7 +103,7 @@ The `watchfile-remote-sender` executable is configured through the following val
 
 ```toml
 # Watchfile Remote [Rust Edition] TOML configuration
-# 1.2.7
+# 1.2.8
 
 [app]
   watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
@@ -137,7 +137,7 @@ The `watchfile-remote-receiver` executable is configured through the following v
 
 ```toml
 # Watchfile Remote [Rust Edition] TOML configuration
-# 1.2.7
+# 1.2.8
 
 [app]
   watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
