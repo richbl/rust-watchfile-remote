@@ -2,15 +2,18 @@
 
 <!-- markdownlint-disable MD033 -->
 <a href="https://github.com/richbl/rust-watchfile-remote/releases"><img alt="Link to Releases" src="https://badgen.net/github/tag/richbl/rust-watchfile-remote?icon=github&label=release"></a>
+<a href="https://github.com/richbl/rust-watchfile-remote/pulls?q="><img alt="Link to PRs" src="https://badgen.net/github/last-commit/richbl/rust-watchfile-remote?color=blue&icon=github"></a>
 <a href="https://rust-reportcard.xuri.me/report/github.com/richbl/rust-watchfile-remote"><img alt="Link to Rust Report Card" src="https://rust-reportcard.xuri.me/badge/github.com/richbl/rust-watchfile-remote"></a>
 <a href="https://app.codacy.com/gh/richbl/rust-watchfile-remote/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img alt="Link to Codacy Dashboard" src="https://app.codacy.com/project/badge/Grade/595889e53f25475da18dea64b5a60419"></a>
 <!-- markdownlint-enable MD033 -->
 
-**Watchfile Remote [Rust Edition]** is a simple pattern that configures both a sender (via the `watchfile-remote-sender` executable) and a receiver (`watchfile-remote-receiver`) to monitor a single file, passed at a given interval, between them for change (called "heartbeat monitoring"). Both of these executables are started once on each machine, and then run indefinitely, typically as a background process or service. If no change is identified after a certain period of time--that is, the heartbeat is no longer detected--then an email is generated identifying loss of the heartbeat. Conversely, if a heartbeat is again detected, a follow-on email is generated indicating the resumption of that heartbeat.
+**Watchfile Remote [Rust Edition]** is a simple pattern that configures both a sender (via the `watchfile-remote-sender` executable) and a receiver (`watchfile-remote-receiver`) to monitor a single file, passed at a given interval, between them for change (called the [Heartbeat Pattern](https://en.wikipedia.org/wiki/Heartbeat_(computing))). Both of these executables are started once on each machine, and then run indefinitely, typically as a background process or service. If no change is identified after a certain period of time--that is, the heartbeat is no longer detected--then an email is generated identifying loss of the heartbeat. Conversely, if a heartbeat is again detected, a follow-on email is generated indicating the resumption of that heartbeat.
 
+<!-- markdownlint-disable MD033 -->
 <p align="center">
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa"><source media="(prefers-color-scheme: light)" srcset="https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa"><img src="[https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa](https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa)" width=700></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa"><source media="(prefers-color-scheme: light)" srcset="https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa"><img alt="Heartbeat Pattern" src="[https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa](https://github.com/richbl/rust-watchfile-remote/assets/10182110/1f94d390-1c9a-4e6a-bc90-0c0e6b1446aa)" width=700></picture>
 </p>
+<!-- markdownlint-enable MD033 -->
 
 ## Rationale
 
@@ -105,7 +108,7 @@ The `watchfile-remote-sender` executable is configured through the following val
 
 ```toml
 # Watchfile Remote [Rust Edition] TOML configuration
-# 1.2.8
+# 1.2.10
 
 [app]
   watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines
@@ -139,7 +142,7 @@ The `watchfile-remote-receiver` executable is configured through the following v
 
 ```toml
 # Watchfile Remote [Rust Edition] TOML configuration
-# 1.2.8
+# 1.2.10
 
 [app]
   watchfile_name = "the-watchfile"                   # the name of the file to be passed between machines

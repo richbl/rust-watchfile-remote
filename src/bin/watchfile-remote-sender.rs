@@ -170,7 +170,7 @@ fn main() {
     match send_file_via_sftp(
       &config.receiver.server,
       &config.receiver.username,
-      ssh_password.as_deref(),
+      ssh_password,
       &config.receiver.ssh_key,
       &watchfile_path_local,
       &watchfile_path_receiver,
