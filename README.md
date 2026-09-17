@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD033 -->
 <a href="https://github.com/richbl/rust-watchfile-remote/releases"><img alt="Link to Releases" src="https://badgen.net/github/tag/richbl/rust-watchfile-remote?icon=github&label=release"></a>
-<a href="https://github.com/richbl/rust-watchfile-remote/pulls?q="><img alt="Link to PRs" src="https://badgen.net/github/last-commit/richbl/rust-watchfile-remote?color=blue&icon=github"></a>
+<a href="https://github.com/richbl/rust-watchfile-remote/pulls?q=is%3Apr+state%3Aclosed"><img alt="Link to PRs" src="https://badgen.net/github/last-commit/richbl/rust-watchfile-remote?color=blue&icon=github"></a>
 <a href="https://rust-reportcard.xuri.me/report/github.com/richbl/rust-watchfile-remote"><img alt="Link to Rust Report Card" src="https://rust-reportcard.xuri.me/badge/github.com/richbl/rust-watchfile-remote"></a>
 <a href="https://app.codacy.com/gh/richbl/rust-watchfile-remote/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade"><img alt="Link to Codacy Dashboard" src="https://app.codacy.com/project/badge/Grade/595889e53f25475da18dea64b5a60419"></a>
 <!-- markdownlint-enable MD033 -->
